@@ -1,47 +1,77 @@
 #include <stdio.h>
 
-int main() {
-    int tabuleiro[10][10];
-    int navio1[3] = {3, 3, 3}; // navio horizontal
-    int navio2[3] = {3, 3, 3}; // navio vertical
-    int i, j;
+#define TAM 10
+#define NAVIO 3
+#define TAM_NAVIO 3
 
-    // Inicializar o tabuleiro com água (0)
-    for (i = 0; i < 10; i++) {
-        for (j = 0; j < 10; j++) {
+// Inicializar tabuleiro
+void inicializarTabuleiro(int tabuleiro[TAM][TAM]) {
+    for (int i = 0; i < TAM; i++) {
+        for (int j = 0; j < TAM; j++) {
             tabuleiro[i][j] = 0;
         }
     }
+}
 
-    // Coordenadas iniciais dos navios (pode mudar se quiser)
-    int linha1 = 2, coluna1 = 4; // navio horizontal
-    int linha2 = 6, coluna2 = 7; // navio vertical
+// Verificar se pode posicionar navio
+int podePosicionar(int tabuleiro[TAM][TAM], int linha, int coluna, int orientacao) {
+    for (int k = 0; k < TAM_NAVIO; k++) {
+        int i = linha, j = coluna;
+        if (orientacao == 0) j += k;              // horizontal
+        else if (orientacao == 1) i += k;         // vertical
+        else if (orientacao == 2) { i += k; j += k; }   // diagonal ↘
+        else if (orientacao == 3) { i += k; j -= k; }   // diagonal ↙
 
-    // Posicionar navio1 (horizontal)
-    for (j = 0; j < 3; j++) {
-        tabuleiro[linha1][coluna1 + j] = navio1[j];
+        if (i < 0 || i >= TAM || j < 0 || j >= TAM) return 0;
+        if (tabuleiro[i][j] != 0) return 0;
     }
+    return 1;
+}
 
-    // Posicionar navio2 (vertical)
-    for (i = 0; i < 3; i++) {
-        tabuleiro[linha2 + i][coluna2] = navio2[i];
+// Posicionar navio
+void posicionarNavio(int tabuleiro[TAM][TAM], int linha, int coluna, int orientacao) {
+    for (int k = 0; k < TAM_NAVIO; k++) {
+        if (orientacao == 0) tabuleiro[linha][coluna + k] = NAVIO;       // horizontal
+        else if (orientacao == 1) tabuleiro[linha + k][coluna] = NAVIO;  // vertical
+        else if (orientacao == 2) tabuleiro[linha + k][coluna + k] = NAVIO; // diagonal ↘
+        else if (orientacao == 3) tabuleiro[linha + k][coluna - k] = NAVIO; // diagonal ↙
     }
+}
 
-    // Cabeçalho com números
+// Exibir tabuleiro
+void exibirTabuleiro(int tabuleiro[TAM][TAM]) {
     printf("    ");
-    for (j = 1; j <= 10; j++) {
+    for (int j = 1; j <= TAM; j++) {
         printf("%2d ", j);
     }
     printf("\n");
 
-    // Exibir o tabuleiro com letras na vertical
-    for (i = 0; i < 10; i++) {
-        printf(" %c ", 'A' + i); // imprime letra da linha
-        for (j = 0; j < 10; j++) {
+    for (int i = 0; i < TAM; i++) {
+        printf(" %c ", 'A' + i);
+        for (int j = 0; j < TAM; j++) {
             printf("%2d ", tabuleiro[i][j]);
         }
         printf("\n");
     }
+}
+
+int main() {
+    int tabuleiro[TAM][TAM];
+    inicializarTabuleiro(tabuleiro);
+
+    // Coordenadas escolhidas manualmente
+    int linha1 = 2, coluna1 = 4; // horizontal
+    int linha2 = 6, coluna2 = 7; // vertical
+    int linha3 = 0, coluna3 = 0; // diagonal ↘
+    int linha4 = 0, coluna4 = 9; // diagonal ↙
+
+    if (podePosicionar(tabuleiro, linha1, coluna1, 0)) posicionarNavio(tabuleiro, linha1, coluna1, 0);
+    if (podePosicionar(tabuleiro, linha2, coluna2, 1)) posicionarNavio(tabuleiro, linha2, coluna2, 1);
+    if (podePosicionar(tabuleiro, linha3, coluna3, 2)) posicionarNavio(tabuleiro, linha3, coluna3, 2);
+    if (podePosicionar(tabuleiro, linha4, coluna4, 3)) posicionarNavio(tabuleiro, linha4, coluna4, 3);
+
+    // Exibir resultado
+    exibirTabuleiro(tabuleiro);
 
     return 0;
 }
